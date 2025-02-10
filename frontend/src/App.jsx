@@ -3,12 +3,40 @@ import FlashCard from "./components/FlashCard";
 import wordData from "./data/words.json"; // Use the updated JSON
 import { Container, Row, Col, Button } from "react-bootstrap";
 
+const GOOGLE_TRANSLATE_API_KEY = "AIzaSyDhL0TOSEq9zJnNjxqemh5DTxokTfa7i1E";
+
+const fetchTranslation = async (word) => {
+    try {
+        const response = await fetch(
+            `https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_TRANSLATE_API_KEY}&q=${word}&source=en&target=vi`
+        );
+        const data = await response.json();
+        return data.data.translations[0].translatedText;
+    } catch (error) {
+        console.error("Translation error:", error);
+        return "";
+    }
+};
+
 function App() {
     const [wordList, setWordList] = useState([]);
 
-    const fetchWords = () => {
+    const fetchWords = async () => {
         const shuffledWords = wordData.words.sort(() => 0.5 - Math.random()); // Shuffle words
-        setWordList(shuffledWords.slice(0, 8)); // Select 8 words
+        const selectedWords = shuffledWords.slice(0, 8);
+        
+        // Fetch translations dynamically
+        const wordDataList = await Promise.all(
+            selectedWords.map(async (wordObj) => {
+                const vietnameseTranslation = await fetchTranslation(wordObj.word);
+                return {
+                    ...wordObj,
+                    vietnamese_meaning: vietnameseTranslation,
+                };
+            })
+        );
+
+        setWordList(wordDataList);
     };
 
     useEffect(() => {

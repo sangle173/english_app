@@ -4,7 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
+    "start": "electron --no-sandbox .",
     "dev": "cd frontend && npm run dev",
     "build": "cd frontend && npm run build"
   },
